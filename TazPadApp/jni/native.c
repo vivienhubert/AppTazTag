@@ -1,3 +1,8 @@
+#include <jni.h>
+#include <string.h>
+#include <android/log.h>
+#define DEBUG_TAG "NDK_TazPad"
+
 #include <stdio.h>
 #include <errno.h>
 #include <pthread.h>
@@ -46,7 +51,7 @@ static void *eo_read_thread(void *ptr);
 static int mode;
 
 
-int main(int argc, char *argv[])
+int Java_com_taztag_tazpad_app_AndroidNDK1SampleActivity_main(JNIEnv * env, jobject this)
 {
 
   printf("********************\n");
