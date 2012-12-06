@@ -179,7 +179,7 @@ static void *eo_read_thread(void *ptr)
 	char buff[256];
 	int i, ret;
 
-	int client_socket;
+	int ma_socket;
 	struct sockaddr_in mon_address, client_address;
 	int mon_address_longueur, lg;
 
@@ -194,7 +194,7 @@ static void *eo_read_thread(void *ptr)
   		printf("la creation rate\n");
   		exit(0);
 	}
-	signal(SIGINT,fin);
+	//signal(SIGINT,fin);
 	/* bind serveur - socket */
 	bind(ma_socket,(struct sockaddr *)&mon_address,sizeof(mon_address));
 
@@ -227,18 +227,18 @@ static void *eo_read_thread(void *ptr)
 		    printf("%02x ", buff[i]);
 		  }
 		  while(1){
-  			client_socket = accept(ma_socket,
+  			ma_socket = accept(ma_socket,
                          (struct sockaddr *)&client_address,
                          &mon_address_longueur);
 
   			if (fork() == 0){
     			close(ma_socket);
-				lg = read(client_socket,buff, 512);
+				lg = read(ma_socket,buff, 512);
     			printf("le serveur a recu: %s\n",buff);
-    			sprintf(buffer,"%s du serveur",buff);
-    			write(client_socket,buff, 512);
-    			shutdown(client_socket,2);
-    			close(client_socket);
+    			sprintf(buff,"%s du serveur",buff);
+    			write(ma_socket,buff, 512);
+    			shutdown(ma_socket,2);
+    			close(ma_socket);
     			exit(0);
   			}
 		}
