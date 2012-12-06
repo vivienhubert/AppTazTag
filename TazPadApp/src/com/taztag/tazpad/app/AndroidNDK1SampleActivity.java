@@ -1,112 +1,72 @@
 package com.taztag.tazpad.app;
 
-
-import java.io.DataOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.taztag.tazpad.app.R;
-
-
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.Menu;
+import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 
 public class AndroidNDK1SampleActivity extends Activity {
 
-		private native void helloLog(String logThis);
-		private native String eoinit();
-		private native String read();
-		
-		private ProgressBar mProgressBar;
-		
-		@Override
-		protected void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			setContentView(R.layout.activity_tazpad);
-			mProgressBar = ((ProgressBar)findViewById(R.id.progressBar));
-			
-			initDrivers();
-			
-			final Button myBut = (Button) findViewById(R.id.Start);
-			myBut.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	
-            	mProgressBar.setProgress(0);
-            	helloLog("This will log to LogCat via the native call.");
-            	//((TextView)findViewById(R.id.trame)).setText("State of eo_init:"+eoinit());
-            	//helloLog("State of eo_init:"+eoinit());
-            	Receiver recept = new Receiver();
-            	helloLog("Launch Receiver");
-            	recept.execute();
-            }}); 
-			
+	private native void helloLog(String logThis);
+	private native String eoinit();
+	private native String read();
+
+	private Button bt;
+	private TextView tv;
+	private Socket socket;
+	private String serverIpAddress = "10.0.2.2";
+	// AND THAT'S MY DEV'T MACHINE WHERE PACKETS TO
+	// PORT 5000 GET REDIRECTED TO THE SERVER EMULATOR'S
+	// PORT 6000
+	private static final int REDIRECTED_SERVERPORT = 5000;
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_tazpad);
+		bt = (Button) findViewById(R.id.Start);
+		tv = (TextView) findViewById(R.id.tv);
+		try {
+			InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
+			socket = new Socket(serverAddr, REDIRECTED_SERVERPORT);
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
-
-		@Override
-		public boolean onCreateOptionsMenu(Menu menu) {
-			// Inflate the menu; this adds items to the action bar if it is present.
-			getMenuInflater().inflate(R.menu.activity_tazpad, menu);
-			return true;
-		}
-		private void initDrivers(){
-			List<String> myList = new ArrayList<String> ();
-        	//myList.add("reboot");
-        	myList.add("insmod /data/Taztag/ftdi_sio.ko");
-        	try {
-				doCmds(myList);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		public static void doCmds(List<String> cmds) throws Exception {
-	        Process process = Runtime.getRuntime().exec("su");
-	        DataOutputStream os = new DataOutputStream(process.getOutputStream());
-
-	        for (String tmpCmd : cmds) {
-	                os.writeBytes(tmpCmd+"\n");
-	        }
-
-	        os.writeBytes("exit\n");
-	        os.flush();
-	        os.close();
-
-	        process.waitFor();
-	    }
-		static {  
-		    System.loadLibrary("ndk1");  
-		}
-		class Receiver extends AsyncTask<Void, String	, Void> {
-
-
-			@Override
-			protected void onPreExecute() {
-				super.onPreExecute();
-				Toast.makeText(getApplicationContext(), "Début du traitement asynchrone", Toast.LENGTH_LONG).show();
-			}
-			@Override
-			protected Void doInBackground(Void... arg0) {
-				while(true){
-					String received = read();
-					helloLog("doInBackground received: "+received);
-					//publishProgress(received);
+		bt.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				try {
+					EditText et = (EditText) findViewById(R.id.et);
+					String str = et.getText().toString();
+					PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
+					out.println(str);
+					Log.d("Client", "Client sent message");
+				} catch (UnknownHostException e) {
+					tv.setText("Error1");
+					e.printStackTrace();
+				} catch (IOException e) {
+					tv.setText("Error2");
+					e.printStackTrace();
+				} catch (Exception e) {
+					tv.setText("Error3");
+					e.printStackTrace();
 				}
 			}
-			protected void onProgressUpdate(String text){
-				TextView trameTextview = (TextView) AndroidNDK1SampleActivity.this.findViewById(R.id.trame);
-		        trameTextview.setText(text);
-			}
-		}
-		
-
+		});
 	}
+
+}
