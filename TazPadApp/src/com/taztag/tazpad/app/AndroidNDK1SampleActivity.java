@@ -1,19 +1,31 @@
 package com.taztag.tazpad.app;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,68 +36,133 @@ import android.widget.TextView;
 
 public class AndroidNDK1SampleActivity extends Activity {
 
-	private native void helloLog(String logThis);
-	private native String eoinit();
-	private native String read();
+	private Handler handler;
 
-	private Button bt;
-	private TextView tv;
-	private Socket socket;
-	private String serverIpAddress ;
-	// AND THAT'S MY DEV'T MACHINE WHERE PACKETS TO
-	// PORT 5000 GET REDIRECTED TO THE SERVER EMULATOR'S
-	// PORT 6000
-	private static final int REDIRECTED_SERVERPORT = 30000;
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tazpad);
-		bt = (Button) findViewById(R.id.Start);
-		tv = (TextView) findViewById(R.id.tv);
-		serverIpAddress = getLocalIpAddress();
-		try {
-			InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
-			socket = new Socket(serverAddr, REDIRECTED_SERVERPORT);
-		} catch (UnknownHostException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		bt.setOnClickListener(new OnClickListener() {
+
+		Button start = (Button) findViewById(R.id.Start);
+		handler = new Handler() {
+			public void handleMessage(android.os.Message msg) {
+				Log.d("USB",msg.getData().getString("line"));
+				TextView tv = (TextView)findViewById(R.id.tv);
+				tv.setText(msg.getData().getString("line"));
+
+			};
+		};
+		start.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				File myDevice = new File("/dev/ttyUSB0");
+				InputStream in = null;
+				DataInputStream dis = null;
+
 				try {
-					EditText et = (EditText) findViewById(R.id.et);
-					String str = et.getText().toString();
-					PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
-					out.println(str);
-					Log.d("Client", "Client sent message");
-				} catch (UnknownHostException e) {
-					tv.setText("Error1");
-					e.printStackTrace();
-				} catch (IOException e) {
-					tv.setText("Error2");
-					e.printStackTrace();
-				} catch (Exception e) {
-					tv.setText("Error3");
-					e.printStackTrace();
+					
+						in = new BufferedInputStream(new FileInputStream(myDevice));
+						dis = new DataInputStream(in);
+
+						String temp = toHex(dis.readLine());
+						TextView tv = (TextView)findViewById(R.id.tv);
+						tv.setText(temp);
+					
+				}catch(Exception e){
+					Log.d("Test", "erreur ouverture");
+				}
+				finally {
+					if (in != null) {
+						try {
+							in.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 				}
 			}
 		});
+
+
 	}
-	// gets the ip address of your phone's network
-    private String getLocalIpAddress() {
-        try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-                NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (!inetAddress.isLoopbackAddress()) { return inetAddress.getHostAddress().toString(); }
-                }
-            }
-        } catch (SocketException ex) {
-            Log.e("ServerActivity", ex.toString());
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.activity_tazpad, menu);
+		return true;
+	}
+	public String toHex(String arg) {
+		return String.format("%040x", new BigInteger(arg.getBytes(/*YOUR_CHARSET?*/)));
+	}
+
+	private void receiveData(){
+		new Thread(new Runnable() {
+
+			public void run() {
+				File myDevice = new File("/dev/ttyUSB0");
+				InputStream in = null;
+				DataInputStream dis = null;
+
+				try {
+					while(true){ 
+						in = new BufferedInputStream(new FileInputStream(myDevice));
+
+						dis = new DataInputStream(in);
+
+						Bundle bdle = new Bundle();
+						String temp = dis.readLine();
+						bdle.putString("line :",temp);
+						Message msg = new Message();
+						msg.setData(bdle);
+						handler.sendMessage(msg);
+					}
+				}catch(Exception e){
+					Log.d("Test", "erreur ouverture");
+				}
+				finally {
+					if (in != null) {
+						try {
+							in.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}).start();
+
+	}
+    
+    private void initDrivers(){
+		List<String> myList = new ArrayList<String> ();
+    	//myList.add("reboot");
+    	myList.add("insmod /data/Taztag/ftdi_sio.ko");
+    	try {
+			doCmds(myList);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public static void doCmds(List<String> cmds) throws Exception {
+        Process process = Runtime.getRuntime().exec("su");
+        DataOutputStream os = new DataOutputStream(process.getOutputStream());
+
+        for (String tmpCmd : cmds) {
+                os.writeBytes(tmpCmd+"\n");
         }
-        return null;
+
+        os.writeBytes("exit\n");
+        os.flush();
+        os.close();
+
+        process.waitFor();
     }
+	static {  
+	    System.loadLibrary("ndk1");  
+	}
+	
 
 }

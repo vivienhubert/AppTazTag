@@ -20,15 +20,7 @@
         android:layout_toRightOf="@+id/Start"
         android:text="Stop" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/button1"
-        android:layout_marginRight="16dp" />
-
-    <EditText
+    <TextView
         android:id="@+id/et"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,7 +30,7 @@
         android:ems="10" >
 
         <requestFocus />
-    </EditText>
+    </TextView>
 
     <Button
         android:id="@+id/Start"
