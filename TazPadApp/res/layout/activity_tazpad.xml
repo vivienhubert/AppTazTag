@@ -4,22 +4,11 @@
     android:layout_height="match_parent"
     tools:context=".AndroidNDK1SampleActivity" >
 
-    <Button
-        android:id="@+id/Start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="20dp"
-        android:text="Start" />
-
     <TextView
-        android:id="@+id/trame"
+        android:id="@+id/tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/logcat"
-        android:layout_below="@+id/logcat"
+        android:layout_alignRight="@+id/et"
         android:text="" />
 
     <Button
@@ -31,12 +20,25 @@
         android:layout_toRightOf="@+id/Start"
         android:text="Stop" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
+    <TextView
+        android:id="@+id/et"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/button1"
-        android:layout_marginRight="16dp" />
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/Start"
+        android:layout_marginTop="38dp"
+        android:ems="10" >
+
+        <requestFocus />
+    </TextView>
+
+    <Button
+        android:id="@+id/Start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tv"
+        android:layout_marginLeft="23dp"
+        android:text="Start" />
 
 </RelativeLayout>

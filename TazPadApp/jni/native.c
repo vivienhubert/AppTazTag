@@ -3,7 +3,6 @@
 #include <android/log.h>
 #define DEBUG_TAG "NDK_TazPad"
 
-/* Taztag code */
 #include <stdio.h>
 #include <errno.h>
 #include <pthread.h>
@@ -14,7 +13,12 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 
-/*#define  LOG_TAG  "enocean module"*/
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <signal.h>
+
+#define  LOG_TAG  "enocean module"
 #include <termios.h>
 
 
@@ -34,27 +38,42 @@
 #define EO_BAUDRATE	57600
 
 int eo_fd;
+pthread_mutex_t eo_lock = PTHREAD_MUTEX_INITIALIZER;
 
 
-/* Useless declarations
 static speed_t getBaudrate(int baudrate);
 static int hw_eo_port_config(int fd, int baudrate);
-static int eo_init();
+static void eo_init();
 static void eo_finish();
 static void *eo_read_thread(void *ptr);
- */
+
 
 static int mode;
 
-/* End of TazTag code */
 
-void Java_com_taztag_tazpad_app_AndroidNDK1SampleActivity_helloLog(JNIEnv * env, jobject this, jstring logThis)
+int Java_com_taztag_tazpad_app_AndroidNDK1SampleActivity_main(JNIEnv * env, jobject this)
 {
-	jboolean isCopy;
-	const char * szLogThis = (*env)->GetStringUTFChars(env, logThis, &isCopy);
-	__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: [%s]", szLogThis);
-	(*env)->ReleaseStringUTFChars(env, logThis, szLogThis);
+
+  printf("********************\n");
+  printf("* ENOCEAN Listener *\n");
+  printf("********************\n\n");
+
+  eo_init();
+
+  pthread_t thread1;
+  char *message1 = "Thread 1";
+  int  iret1;
+
+  iret1 = pthread_create( &thread1, NULL, eo_read_thread, (void*) message1);
+
+  sleep(10000);
+
+  eo_finish();
+
+  return 0;
 }
+
+
 static speed_t getBaudrate(int baudrate)
 {
 	switch(baudrate) {
@@ -135,131 +154,111 @@ static int hw_eo_port_config(int fd, int baudrate)
 
 
 
-jstring Java_com_taztag_tazpad_app_AndroidNDK1SampleActivity_eoinit(JNIEnv * env, jobject this)
+static void eo_init(  )
 {
-	char *toRet;
-	//printf("EO INIT\n");
+
+	printf("EO INIT\n");
+
 	eo_fd = open(EO_DEVICE, O_RDWR);
 
-	if (eo_fd < 0) {
-		__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: [no eo emulation detected\n");
-		jstring result = (*env)->NewStringUTF(env, toRet);
-		return result;
-	}
+    if (eo_fd < 0) {
+        D("no eo emulation detected\n");
+        return;
+    }
 
 	fcntl(eo_fd, F_SETFL, 0);
 
 	if(hw_eo_port_config(eo_fd, EO_BAUDRATE) != 0){
-		__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: hw_eo_port_config fail\n");
-		jstring result = (*env)->NewStringUTF(env, toRet);
-		return result;
+		printf("hw_eo_port_config fail\n");
+		return;
 	}
 
-	__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: eo  will read from '%s' \n", EO_DEVICE);
+    D("eo  will read from '%s' \n", EO_DEVICE);
 
-	//D("eo initialized\n");
-	jstring result = (*env)->NewStringUTF(env, toRet);
-	return result;
-
+    D("eo initialized\n");
 }
 
 
-static void *eo_read_thread(JNIEnv * env, jobject this,void *ptr)
+static void *eo_read_thread(void *ptr)
 {
 	char buff[256];
 	int i, ret;
-	pthread_mutex_t eo_lock = PTHREAD_MUTEX_INITIALIZER;
+
+	int ma_socket;
+	struct sockaddr_in mon_address, client_address;
+	int mon_address_longueur, lg;
+
+	bzero(&mon_address,sizeof(mon_address));
+	mon_address.sin_port = htons(30000);
+	mon_address.sin_family = AF_INET;
+	mon_address.sin_addr.s_addr = htonl(INADDR_ANY);
+
+	/* creation de socket */
+	if ((ma_socket = socket(AF_INET,SOCK_STREAM,0))== -1)
+	{
+  		printf("la creation rate\n");
+  		exit(0);
+	}
+	//signal(SIGINT,fin);
+	/* bind serveur - socket */
+	bind(ma_socket,(struct sockaddr *)&mon_address,sizeof(mon_address));
+
+	/* ecoute sur la socket */
+	listen(ma_socket,5);
+
+	/* accept la connexion */
+	mon_address_longueur = sizeof(client_address);
+
 	printf("\nDATA RECEIVED ->\n");
 
 	for (;;) {
 
-		pthread_mutex_lock(&eo_lock);
-		ret = read( eo_fd, buff, sizeof(buff) );
-		pthread_mutex_unlock(&eo_lock);
+	      pthread_mutex_lock(&eo_lock);
+		  ret = read( eo_fd, buff, sizeof(buff) );
+		  pthread_mutex_unlock(&eo_lock);
 
-		if (ret < 0) {
-			if (errno == EINTR)
-				continue;
-			if (errno == EWOULDBLOCK)
-				continue;
-			printf("error while reading from eo daemon socket: %s:\n", strerror(errno));
-			D("eo closed\n");
-			break;
-		}else{
-			for(i=0;i<ret;i++){
-				if(buff[i]==0x55)
-					printf("\nFrame received ->  ");
-				printf("%02x ", buff[i]);
-			}
+		  if (ret < 0) {
+		    if (errno == EINTR)
+		      continue;
+		    if (errno == EWOULDBLOCK)
+		      continue;
+		    printf("error while reading from eo daemon socket: %s:\n", strerror(errno));
+		    D("eo closed\n");
+		    break;
+		  }else{
+		  for(i=0;i<ret;i++){
+		    if(buff[i]==0x55)
+		      printf("\nFrame received ->  ");
+		    printf("%02x ", buff[i]);
+		  }
+		  while(1){
+  			ma_socket = accept(ma_socket,
+                         (struct sockaddr *)&client_address,
+                         &mon_address_longueur);
+
+  			if (fork() == 0){
+    			close(ma_socket);
+				lg = read(ma_socket,buff, 512);
+    			printf("le serveur a recu: %s\n",buff);
+    			sprintf(buff,"%s du serveur",buff);
+    			write(ma_socket,buff, 512);
+    			shutdown(ma_socket,2);
+    			close(ma_socket);
+    			exit(0);
+  			}
+		}
+		shutdown(ma_socket,2);
+		close(ma_socket);
 		}
 	}
 }
 
 
-static void eo_finish(JNIEnv * env, jobject this)
+static void eo_finish()
 {
-	D("TAZTAG finished\n");
+    D("TAZTAG finished\n");
 
-	close( eo_fd );
+    close( eo_fd );
 }
-jstring Java_com_taztag_tazpad_app_AndroidNDK1SampleActivity_read(JNIEnv * env, jobject this)
-{
-	char *toRet;
-		//printf("EO INIT\n");
-		eo_fd = open(EO_DEVICE, O_RDWR);
 
-		if (eo_fd < 0) {
-				__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: no eo emulation detected\n");
-				jstring result = (*env)->NewStringUTF(env, "no eo emulation detected");
-				return result;
-			}
 
-			fcntl(eo_fd, F_SETFL, 0);
-
-			if(hw_eo_port_config(eo_fd, EO_BAUDRATE) != 0){
-				__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: hw_eo_port_config fail\n");
-				jstring result = (*env)->NewStringUTF(env, "hw_eo_port_config fail\n");
-				return result;
-			}
-
-			__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: eo  will read from '%s' \n", EO_DEVICE);
-
-		//D("eo initialized\n");
-		jstring result = (*env)->NewStringUTF(env," eo  will read from '%s' \n");
-		return result;
-	char buff[256];
-	int i, ret;
-	char *szResult;
-	szResult = malloc(sizeof(char)*72);
-	pthread_mutex_t eo_lock = PTHREAD_MUTEX_INITIALIZER;
-
-	for(;;){
-	pthread_mutex_lock(&eo_lock);
-	__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: [lock-in]");
-	ret = read( eo_fd, buff, sizeof(buff) );
-	__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: [lock-has-read]");
-	pthread_mutex_unlock(&eo_lock);
-	__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: [lock-out]");
-
-	if (ret < 0) {
-		if (errno == EINTR)
-			return ;
-		if (errno == EWOULDBLOCK)
-			return;
-		printf("error while reading from eo daemon socket: %s:\n", strerror(errno));
-		D("eo closed\n");
-		return;
-	}else{
-		for(i=0;i<ret;i++){
-			if(buff[i]==0x55)
-				printf("\nFrame received ->  ");
-			//printf("%02x ", buff[i]);
-			szResult[i]=buff[i];
-			__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: buff[i]: %d",buff[i]);
-		}
-		jstring result = (*env)->NewStringUTF(env, szResult);
-		free(szResult);
-		return result;
-		}
-	}
-}
