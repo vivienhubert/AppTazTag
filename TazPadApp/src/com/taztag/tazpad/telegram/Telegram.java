@@ -3,6 +3,8 @@ package com.taztag.tazpad.telegram;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
 
+// Class permetant la gestion du Telegram (Recupération de donnée importantes)
+
 
 public class Telegram {
 	
@@ -15,7 +17,7 @@ public class Telegram {
 	
 	public static void main(String argv[]) throws Exception
 	  {
-		Telegram t = new Telegram("55 00 07 07 04 7a f6 50 00 27 87 7d 30 01 ff ff ff ff 3a 00 13");
+		Telegram t = new Telegram("55 00 07 07 04 7a f6 50 00 27 87 7d 30 01 ff ff ff ff 3a 00 13"); 
 		t.getDataLenght();
 		t.getOptionalLenght();
 		System.out.println(t.getPacketType());
