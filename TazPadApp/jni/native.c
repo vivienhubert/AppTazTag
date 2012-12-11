@@ -32,7 +32,7 @@
 
 #define EO_DEVICE	"/dev/ttyUSB0"
 #define DEV_PWR_PM	"/dev/device-pm"
-#define DEVICE_PM_IOM                  	'P'
+#define DEVICE_PM_IOM  'P'
 #define EO_PWR_OFF 0
 #define EO_PWR_ON 1
 #define EO_BAUDRATE	57600
@@ -50,25 +50,23 @@ static void *eo_read_thread(void *ptr);
 
 static int mode;
 
-
-int Java_com_taztag_tazpad_app_AndroidNDK1SampleActivity_main(JNIEnv * env, jobject this)
+void Java_com_taztag_tazpad_app_AndroidNDK1SampleActivity_helloLog(JNIEnv * env, jobject this, jstring logThis)
 {
+	jboolean isCopy;
+	const char * szLogThis = (*env)->GetStringUTFChars(env, logThis, &isCopy);
+	__android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "NDK:LC: [%s]", szLogThis);
+	(*env)->ReleaseStringUTFChars(env, logThis, szLogThis);
+}
 
-  printf("********************\n");
-  printf("* ENOCEAN Listener *\n");
-  printf("********************\n\n");
-
-  eo_init();
-
-  pthread_t thread1;
-  char *message1 = "Thread 1";
-  int  iret1;
-
-  iret1 = pthread_create( &thread1, NULL, eo_read_thread, (void*) message1);
-
-  sleep(10000);
-
-  eo_finish();
+jstring Java_com_taztag_tazpad_app_AndroidNDK1SampleActivity_convert(JNIEnv * env, jobject this,jstring logThis, int size)
+{
+	jboolean isCopy;
+	const char * szLogThis = (*env)->GetStringUTFChars(env, logThis, &isCopy);
+	for(i=0;i<size;i++){
+    if(buff[i]==0x55)
+      printf("\nFrame received ->  ");
+    printf("%02x ", buff[i]);
+  }
 
   return 0;
 }

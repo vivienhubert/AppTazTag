@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import com.taztag.tazpad.telegram.Telegram;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,7 +50,8 @@ public class AndroidNDK1SampleActivity extends Activity {
 			public void handleMessage(android.os.Message msg) {
 				Log.d("USB",msg.getData().getString("line"));
 				TextView tv = (TextView)findViewById(R.id.tv);
-				tv.setText(msg.getData().getString("line"));
+				Telegram myTl = new Telegram(msg.getData().getString("line"));
+				tv.setText("Trame: "+msg.getData().getString("line")+"\n "+myTl.getPacketType());
 
 			};
 		};
@@ -65,10 +68,11 @@ public class AndroidNDK1SampleActivity extends Activity {
 
 						String temp = toHex(dis.readLine());
 						TextView tv = (TextView)findViewById(R.id.tv);
-						tv.setText(temp);
+						//Telegram myTl = new Telegram(temp);
+						tv.setText("Trame size: "+temp.length()+"\n Trame: "+temp);//+"/n Telegram PacketType: "+myTl.getPacketType());
 					
 				}catch(Exception e){
-					Log.d("Test", "erreur ouverture");
+					Log.d("Test", "erreur ouverture "+e.getMessage());
 				}
 				finally {
 					if (in != null) {
@@ -93,7 +97,10 @@ public class AndroidNDK1SampleActivity extends Activity {
 		return true;
 	}
 	public String toHex(String arg) {
-		return String.format("%040x", new BigInteger(arg.getBytes(/*YOUR_CHARSET?*/)));
+		String myString="";
+		//for(int i = 0;i<arg.length() ;i++){//
+			myString += String.format("%02X", new BigInteger(arg.substring(0,arg.length()).getBytes(/*YOUR_CHARSET?*/)));
+		return myString;
 	}
 
 	private void receiveData(){
