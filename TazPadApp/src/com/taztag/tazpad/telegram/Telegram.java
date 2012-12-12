@@ -3,8 +3,6 @@ package com.taztag.tazpad.telegram;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
 
-// Class permetant la gestion du Telegram (Recupération de donnée importantes)
-
 
 public class Telegram {
 	
@@ -15,13 +13,14 @@ public class Telegram {
 	
 	
 	
-	public static void main(String argv[]) throws Exception
+	/*public static void main(String argv[]) throws Exception
 	  {
-		Telegram t = new Telegram("55 00 07 07 04 7a f6 50 00 27 87 7d 30 01 ff ff ff ff 3a 00 13"); 
+		Telegram t = new Telegram("55 00 07 07 04 7a f6 01 00 27 87 7d 30 01 ff ff ff ff 3a 00 13");
 		t.getDataLenght();
 		t.getOptionalLenght();
-		System.out.println(t.getPacketType());
-	  }
+		System.out.println(t.getData())
+		t.getData();
+	  }*/
 	
 	public Telegram(String trame){
 		
@@ -53,7 +52,6 @@ public class Telegram {
 		public int getDataLenght()
 		{
 			dataLenght = Integer.parseInt(tabTrame.get(1)+tabTrame.get(2), 16); 
-			System.out.println("DataLenght : "+dataLenght);
 			return (dataLenght);
 		}
 		
@@ -64,8 +62,11 @@ public class Telegram {
 			return (optionalLenght);
 		}
 			
+		// Type de la trame
+		
 		public String getPacketType()
-		{	String STypeCom="";
+		{	
+			String STypeCom="";
 		
 			int PacketType = Integer.parseInt(tabTrame.get(4),16);
 			
@@ -76,7 +77,7 @@ public class Telegram {
 			else if(PacketType == 5){STypeCom="COMMON_COMMAND";}
 			else if(PacketType == 6){STypeCom="SMART_ACK_COMMAND";}
 			else if(PacketType == 7){STypeCom="REMOTE_MAN_COMMAND";}
-			
+			else{STypeCom = "UNKNOWN";}	
 			
 			return(STypeCom);
 		}
@@ -86,6 +87,105 @@ public class Telegram {
 			return("");
 		}
 	
+		
+		
+		/********** GESTION DATA ************/
+		
+		
+		
+		
+		public String getTelegramType(){
+	
+		String TelegramType ;
+		String value = tabTrame.get(6);
+        
+             if(value.equals("f6")){TelegramType="RPS";}
+             else if(value.equals("d5")){TelegramType="1BS";}
+             else if(value.equals("a5")){TelegramType="4BS";}
+             else {TelegramType="UNKNOWN";}
+         
+        return(TelegramType);      
+        }
+		
+	
+		
+		
+		public String getDataStatus(){
+			
+			/* Structure du BYTE Status 
+			 * 
+			 * |  7-6   |  5  |  4 |   3-2-1-0  |
+			 * |RESERVED| T21 | NU | RP_COUNTER |
+			 * 
+			 */
+			int T21;
+			int NU;
+			int RP_COUNTER;
+			
+			String status ="";
+			int indexStatus = this.getDataLenght(); // Situe l'index pour savoir où ce situe le BYTE Status
+			status = tabTrame.get(6+indexStatus);
+			
+			
+			
+			
+			/*if(this.getTelegramType()=="RPS"){  ;}
+			else if(this.getTelegramType()=="1BS"){status=tabTrame.get();}
+			else if(this.getTelegramType()=="4BS"){status=tabTrame.get(13);}
+			else{status = "UNKNOWN";}	*/
+			
+			return(status);
+		
+		
+		}
+		
+		
+		
+		public String getData(){
+			
+			String Data="";
+			String valByteCurrent;
+			
+			if(this.getTelegramType()=="RPS")
+				{  
+				valByteCurrent= tabTrame.get(7);
+				
+				/*int i=Integer.parseInt(valByteCurrent,16); // Passage en Binaire
+				String binaryVal = Integer.toBinaryString(i);*/
+				
+				if(valByteCurrent.equals("50")){Data=" Bouton Pressé Interrupteur Bas";}
+				else if(valByteCurrent.equals("70")){Data=" Bouton Pressé Interrupteur Haut";}
+				else if(valByteCurrent.equals("00")){Data=" Bouton Released ";}
+				else if(valByteCurrent.equals("01")){Data=" Bouton Pressé";}
+				
+				
+				}
+			
+			/*else if(this.getTelegramType()=="1BS")
+			{
+				status=tabTrame.get();
+			}*/
+			
+			else if(this.getTelegramType()=="4BS") //TEMP
+			{
+				
+				
+			}
+			
+			else{ 
+				Data = "UNKNOWN";
+				
+			}	
+			return(Data);
+		}
+		
+		
+		
+		 
+		
+		
+		
+		
 }
 	
 	
