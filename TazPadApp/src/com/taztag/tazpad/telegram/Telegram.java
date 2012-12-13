@@ -156,7 +156,7 @@ public class Telegram {
 				if(valByteCurrent.equals("50")){Data=" Bouton Pressé Interrupteur Bas";}
 				else if(valByteCurrent.equals("70")){Data=" Bouton Pressé Interrupteur Haut";}
 				else if(valByteCurrent.equals("00")){Data=" Bouton Released ";}
-				else if(valByteCurrent.equals("01")){Data=" Bouton Pressé";}
+				else if(valByteCurrent.equals("10")){Data=" Bouton Pressé";}
 				
 				
 				}
