@@ -123,7 +123,7 @@ public class Telegram {
 			int RP_COUNTER;
 			
 			String status ="";
-			int indexStatus = this.getDataLenght(); // Situe l'index pour savoir o ce situe le BYTE Status
+			int indexStatus = this.getDataLenght(); // Situe l'index pour savoir oï¿½ ce situe le BYTE Status
 			status = tabTrame.get(6+indexStatus);
 			
 			
@@ -153,10 +153,10 @@ public class Telegram {
 				/*int i=Integer.parseInt(valByteCurrent,16); // Passage en Binaire
 				String binaryVal = Integer.toBinaryString(i);*/
 				
-				if(valByteCurrent.equals("50")){Data=" Bouton Press Interrupteur Bas";}
-				else if(valByteCurrent.equals("70")){Data=" Bouton Press Interrupteur Haut";}
+				if(valByteCurrent.equals("50")){Data=" Bouton Pressï¿½ Interrupteur Bas";}
+				else if(valByteCurrent.equals("70")){Data=" Bouton Pressï¿½ Interrupteur Haut";}
 				else if(valByteCurrent.equals("00")){Data=" Bouton Released ";}
-				else if(valByteCurrent.equals("10")){Data=" Bouton Press";}
+				else if(valByteCurrent.equals("10")){Data=" Bouton Pressï¿½";}
 				
 				
 				}
@@ -182,7 +182,10 @@ public class Telegram {
 		
 		
 		 
-		
+		public static int getDataFromHeader(String header){
+			int dataLenght = Integer.parseInt((String)(header.charAt(4)+""+header.charAt(5)), 16); 
+			return (dataLenght);
+		}
 		
 		
 		
