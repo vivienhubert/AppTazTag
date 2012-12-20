@@ -81,9 +81,10 @@ public class AndroidNDK1SampleActivity extends Activity {
 						Log.d("trame", addSpace(trame));
 						
 						Telegram myTl = new Telegram(addSpace(trame));
-						tv.setText("Trame size: "+trame.length()+"\n Trame: "+trame+"\n Size: "+size
-									+"\n Telegram PacketType: "
-									+myTl.getPacketType()+"\n Telegram DataLength: "+myTl.getDataLenght()
+						tv.setText("Trame size: "+trame.length()
+									+"\n Trame: "+trame+"\n Size: "+size
+									+"\n Telegram PacketType: "+myTl.getPacketType()
+									+"\n Telegram DataLength: "+myTl.getDataLenght()
 								);
 					
 				}catch(Exception e){
