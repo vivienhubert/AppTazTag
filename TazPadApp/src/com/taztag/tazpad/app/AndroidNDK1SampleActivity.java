@@ -31,6 +31,8 @@ import com.taztag.tazpad.telegram.Telegram;
 
 public class AndroidNDK1SampleActivity extends Activity {
 
+	String TAG="TZTG_debug";
+	
 	private Handler handler;
 	 UsbManager manager;
 	   HashMap<String, UsbDevice> deviceList;
@@ -45,61 +47,17 @@ public class AndroidNDK1SampleActivity extends Activity {
 		Button start = (Button) findViewById(R.id.Start);
 		handler = new Handler() {
 			public void handleMessage(android.os.Message msg) {
-				Log.d("USB",msg.getData().getString("line"));
+				Log.d(TAG,msg.getData().getString("dataLength"));
 				TextView tv = (TextView)findViewById(R.id.tv);
-				Telegram myTl = new Telegram(msg.getData().getString("line"));
-				tv.setText("Trame: "+msg.getData().getString("line")+"\n "+myTl.getPacketType());
+				//Telegram myTl = new Telegram(msg.getData().getString("dataLength"));
+				//tv.setText("Trame: "+msg.getData().getString("dataLength")+"\n "+myTl.getPacketType());
+				tv.setText("Trame: "+msg.getData().getString("trame"));
 
 			};
 		};
 		start.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				File myDevice = new File("/dev/ttyUSB0");
-				InputStream in = null;
-				DataInputStream dis = null;
-				byte[] header = new byte [3] ;
-				byte[] data;
-
-				try {
-					
-						in = new BufferedInputStream(new FileInputStream(myDevice));
-						in.read(header);
-						//dis = new DataInputStream(in);
-						//dis.read(input);
-												
-						Log.d("input", ""+header);
-						String trame = bytesToHex(header);
-						TextView tv = (TextView)findViewById(R.id.tv);
-						//Telegram myTl = new Telegram("55 00 07 07 04 7a f6 01 00 27 87 7d 30 01 ff ff ff ff 3a 00 13");
-						int size=Telegram.getDataFromHeader(trame);
-						Log.d("size", ""+size);
-						for(int i = 0;i<size-1;i++){
-							data = new byte [3] ;
-							in.read(data);
-							trame+=bytesToHex(data);
-						}
-						Log.d("trame", addSpace(trame));
-						
-						Telegram myTl = new Telegram(addSpace(trame));
-						tv.setText("Trame size: "+trame.length()
-									+"\n Trame: "+trame+"\n Size: "+size
-									+"\n Telegram PacketType: "+myTl.getPacketType()
-									+"\n Telegram DataLength: "+myTl.getDataLenght()
-								);
-					
-				}catch(Exception e){
-					Log.d("Test", "erreur ouverture "+e.getMessage());
-				}
-				finally {
-					if (in != null) {
-						try {
-							in.close();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				} 
+				receiveData();				
 			}
 		});
 
@@ -120,7 +78,7 @@ public class AndroidNDK1SampleActivity extends Activity {
 		
 //		StringBuilder sb = new StringBuilder(array.length * 2);
 //		java.util.Formatter formatter = new java.util.Formatter(sb);
-//		Log.d("trame_to_hexa","init");
+//		Log.d(TAG,"init");
 //		for (byte b : array) {  
 //	        formatter.format("%02X", b); 
 //	        sb.append(' ');
@@ -143,6 +101,7 @@ public class AndroidNDK1SampleActivity extends Activity {
 	}
 
 	private void receiveData(){
+		Log.d(TAG,"thread launched");
 		new Thread(new Runnable() {
 
 			public void run() {
@@ -150,21 +109,49 @@ public class AndroidNDK1SampleActivity extends Activity {
 				InputStream in = null;
 				DataInputStream dis = null;
 
+				byte[] header = new byte [3] ;
+				byte[] data;
+
 				try {
-					while(true){ 
+					
 						in = new BufferedInputStream(new FileInputStream(myDevice));
-
-						dis = new DataInputStream(in);
-
-						Bundle bdle = new Bundle();
-						String temp = dis.readLine();
-						bdle.putString("line :",temp);
+						in.read(header);
+						//dis = new DataInputStream(in);
+						//dis.read(input);
+												
+						Log.d(TAG, "header : "+header);
+						String trame = bytesToHex(header);
+						TextView tv = (TextView)findViewById(R.id.tv);
+						//Telegram myTl = new Telegram("55 00 07 07 04 7a f6 01 00 27 87 7d 30 01 ff ff ff ff 3a 00 13");
+						int size=Telegram.getDataFromHeader(trame);
+						Log.d(TAG, ""+size);
+						for(int i = 0;i<size-1;i++){
+							data = new byte [3] ;
+							in.read(data);
+							trame+=bytesToHex(data);
+						}
+						Log.d(TAG, "trame " + addSpace(trame));
+						
+						Telegram myTl = new Telegram(addSpace(trame));
+						/*tv.setText("Trame size: "+trame.length()
+									+"\n Trame: "+trame+"\n Size: "+size
+									+"\n Telegram PacketType: "+myTl.getPacketType()
+									+"\n Telegram DataLength: "+myTl.getDataLenght()
+								);
+								*/
+						Log.d(TAG,"bundle creation");
+						Bundle b = new Bundle();
+						b.putString("trame", addSpace(trame));
+						b.putString("dataLength", ""+myTl.getDataLenght());
+						b.putString("packetType", myTl.getPacketType());
+						
 						Message msg = new Message();
-						msg.setData(bdle);
+						msg.setData(b);
 						handler.sendMessage(msg);
-					}
+						Log.d(TAG,"bundle sent");
+						
 				}catch(Exception e){
-					Log.d("Test", "erreur ouverture");
+					Log.d(TAG, "Test"+"erreur ouverture "+e.getMessage());
 				}
 				finally {
 					if (in != null) {
@@ -175,7 +162,7 @@ public class AndroidNDK1SampleActivity extends Activity {
 							e.printStackTrace();
 						}
 					}
-				}
+				} 
 			}
 		}).start();
 
