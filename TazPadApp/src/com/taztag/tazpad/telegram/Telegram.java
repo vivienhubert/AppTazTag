@@ -153,10 +153,10 @@ public class Telegram {
 				/*int i=Integer.parseInt(valByteCurrent,16); // Passage en Binaire
 				String binaryVal = Integer.toBinaryString(i);*/
 				
-				if(valByteCurrent.equals("50")){Data=" Bouton Press� Interrupteur Bas";}
-				else if(valByteCurrent.equals("70")){Data=" Bouton Press� Interrupteur Haut";}
+				if(valByteCurrent.equals("50")){Data=" Bouton Presse Interrupteur Bas";}
+				else if(valByteCurrent.equals("70")){Data=" Bouton Presse Interrupteur Haut";}
 				else if(valByteCurrent.equals("00")){Data=" Bouton Released ";}
-				else if(valByteCurrent.equals("10")){Data=" Bouton Press�";}
+				else if(valByteCurrent.equals("10")){Data=" Bouton Presse";}
 				
 				
 				}
@@ -166,9 +166,14 @@ public class Telegram {
 				status=tabTrame.get();
 			}*/
 			
-			else if(this.getTelegramType()=="4BS") //TEMP
+			else if(this.getTelegramType()=="4BS") //Gestion température pour une gamme 60 -20°
 			{
-				
+			double dataTemp;
+			double currentTemp;
+			dataTemp = Integer.parseInt(tabTrame.get(9),16); // Passe de String en Decimal
+			currentTemp=dataTemp*(0.31);
+			Data = String.valueOf(currentTemp+" C°"); 
+		
 				
 			}
 			
