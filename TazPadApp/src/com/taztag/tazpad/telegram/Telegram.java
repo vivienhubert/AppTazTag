@@ -99,9 +99,9 @@ public class Telegram {
 		String TelegramType ;
 		String value = tabTrame.get(6);
         
-             if(value.equals("f6")){TelegramType="RPS";}
-             else if(value.equals("d5")){TelegramType="1BS";}
-             else if(value.equals("a5")){TelegramType="4BS";}
+             if(value.equals("F6")){TelegramType="RPS";}
+             else if(value.equals("D5")){TelegramType="1BS";}
+             else if(value.equals("A5")){TelegramType="4BS";}
              else {TelegramType="UNKNOWN";}
          
         return(TelegramType);      
@@ -172,9 +172,7 @@ public class Telegram {
 			double currentTemp;
 			dataTemp = Integer.parseInt(tabTrame.get(9),16); // Passe de String en Decimal
 			currentTemp=dataTemp*(0.31);
-			Data = String.valueOf(currentTemp+" C°"); 
-		
-				
+			Data = String.valueOf(currentTemp+" C°"); 		
 			}
 			
 			else{ 
