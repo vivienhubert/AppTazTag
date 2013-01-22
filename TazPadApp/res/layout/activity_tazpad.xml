@@ -11,22 +11,13 @@
         android:layout_alignRight="@+id/et"
         android:text="" />
 
-    <Button
-        android:id="@+id/Stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/Start"
-        android:layout_alignBottom="@+id/Start"
-        android:layout_toRightOf="@+id/Start"
-        android:text="Stop" />
-
     <TextView
         android:id="@+id/et"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/Start"
+        android:layout_below="@+id/tv"
         android:layout_marginTop="38dp"
         android:ems="10" >
 
@@ -34,12 +25,11 @@
     </TextView>
 
     <Button
-        android:id="@+id/Start"
+        android:id="@+id/clrscr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/tv"
-        android:layout_marginLeft="23dp"
-        android:text="Start" />
+        android:layout_alignParentTop="true"
+        android:text="ClearScreen" />
 
 </RelativeLayout>
