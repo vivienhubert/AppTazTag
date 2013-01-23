@@ -1,25 +1,16 @@
 package com.taztag.tazpad.app;
 
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Date;
-
 import com.taztag.tazpad.telegram.Telegram;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
-import android.widget.TextView;
 
 public class EnOceanReceiver extends IntentService {
 

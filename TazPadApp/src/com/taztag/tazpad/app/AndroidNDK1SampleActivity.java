@@ -33,6 +33,7 @@ public class AndroidNDK1SampleActivity extends Activity {
 	private RadioGroup radioTechnoGroup;
 	private RadioButton radioTechnoButton;
 	private ImageView imgTecho;
+	
 	private String str;
 	
 	

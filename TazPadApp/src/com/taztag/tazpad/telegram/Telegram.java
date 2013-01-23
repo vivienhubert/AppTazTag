@@ -186,7 +186,7 @@ public class Telegram {
 		
 		 
 		public static int getDataFromHeader(String header){
-			int dataLenght = Integer.parseInt((String)(header.charAt(4)+""+header.charAt(5)), 16); 
+			int dataLenght = Integer.parseInt(header.charAt(4)+""+header.charAt(5), 16); 
 			return (dataLenght);
 		}
 		
