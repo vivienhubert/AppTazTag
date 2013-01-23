@@ -4,5 +4,10 @@
     <string name="app_name">AndroidNDK1SampleActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    <color name="bg">#E0E8FF</color>
+    <color name="bgn">#000000</color>
+    <color name="blanc">#FFFFFF</color>
+    <string name="radio_enocean">EnOcean</string>
+    <string name="radio_zigbee">Zigbee</string>
 
 </resources>

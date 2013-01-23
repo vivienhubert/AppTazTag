@@ -14,6 +14,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +29,11 @@ public class AndroidNDK1SampleActivity extends Activity {
 	private static String TAG="TZTG_debug";
 	private Intent intent;
 	private boolean previous_val = false; 
+	
+	private RadioGroup radioTechnoGroup;
+	private RadioButton radioTechnoButton;
+	private ImageView imgTecho;
+	private String str;
 	
 	
 	
