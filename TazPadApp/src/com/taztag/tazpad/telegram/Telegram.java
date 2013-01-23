@@ -9,6 +9,7 @@ public class Telegram {
 	private ArrayList<String> tabTrame = new ArrayList<String>();
 	private int dataLenght;
 	private int optionalLenght;
+	private String gtrame;
 	
 	
 	
@@ -28,6 +29,7 @@ public class Telegram {
 		int sizeTrame = st.countTokens(); // Taile de la trame
 		System.out.println("Size Trame "+sizeTrame);
 		int tablenght = sizeTrame-1;
+		this.gtrame = trame;
 		
 		
 		for(int i=0 ;i<=tablenght;i++) {
@@ -47,7 +49,9 @@ public class Telegram {
 		 * SyncByte[0] + DataLenght[1,2] + OptionalLenght[3] + PacketType [4] + CRC8 [5]
 		 * 
 		 */
-		
+		public String getTrame(){
+			return(gtrame);	
+		}
 		
 		public int getDataLenght()
 		{
@@ -82,10 +86,10 @@ public class Telegram {
 			return(STypeCom);
 		}
 		
-		public String getDevice (){
+		/*public String getDevice (){
 			
 			return("");
-		}
+		}*/
 	
 		
 		
@@ -139,7 +143,24 @@ public class Telegram {
 		
 		}
 		
-		
+		public String getEquipement(){
+			
+			String equip="";
+			String valByteCurrent;
+			
+			
+			if(this.getTelegramType()=="RPS")
+			{
+				valByteCurrent= tabTrame.get(7);
+				if(valByteCurrent.equals("50")||valByteCurrent.equals("70")||valByteCurrent.equals("00")||valByteCurrent.equals("10")){
+				equip="bouton_poussoire";
+			}
+			}
+			else if(this.getTelegramType()=="4BS")
+			{ equip = "capteur_temperature";}
+			
+			return(equip);
+		}
 		
 		public String getData(){
 			
@@ -153,10 +174,10 @@ public class Telegram {
 				/*int i=Integer.parseInt(valByteCurrent,16); // Passage en Binaire
 				String binaryVal = Integer.toBinaryString(i);*/
 				
-				if(valByteCurrent.equals("50")){Data=" Bouton Presse Interrupteur Bas";}
-				else if(valByteCurrent.equals("70")){Data=" Bouton Presse Interrupteur Haut";}
-				else if(valByteCurrent.equals("00")){Data=" Bouton Released ";}
-				else if(valByteCurrent.equals("10")){Data=" Bouton Presse";}
+				if(valByteCurrent.equals("50")){Data="Bouton_Bas";}
+				else if(valByteCurrent.equals("70")){Data="Bouton_Haut";}
+				else if(valByteCurrent.equals("00")){Data="Bouton_Presse";}
+				else if(valByteCurrent.equals("10")){Data="Bouton_Released";}
 				
 				
 				}

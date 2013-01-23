@@ -10,10 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="false"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentStart="false"
         android:layout_alignParentTop="true"
         android:adjustViewBounds="true"
         android:baselineAlignBottom="false"
@@ -46,53 +44,13 @@
     </RadioGroup>
 
     <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView4"
-        android:layout_below="@+id/textView4"
-        android:layout_marginTop="21dp"
-        android:text="Data1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/TextView01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView5"
-        android:layout_below="@+id/textView5"
-        android:layout_marginTop="24dp"
-        android:text="Data2"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/t"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="57dp"
         android:layout_toRightOf="@+id/textView1"
         android:text="DATA"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView2"
-        android:layout_below="@+id/textView2"
-        android:layout_marginTop="34dp"
-        android:text="Data0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView1"
-        android:layout_alignBottom="@+id/textView1"
-        android:layout_alignLeft="@+id/textView2"
-        android:text="EQUIPEMENT"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
@@ -108,7 +66,7 @@
         android:textColor="@color/blanc" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/imgEquip"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -118,12 +76,90 @@
         android:baselineAlignBottom="false"
         android:src="@drawable/swnoe" />
 
+    <TextView
+        android:id="@+id/datalenght"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/telegramtype"
+        android:layout_below="@+id/telegramtype"
+        android:layout_marginTop="21dp"
+        android:text="Data Lenght :"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textView1"
+        android:layout_alignBottom="@+id/textView1"
+        android:layout_alignLeft="@+id/typeEquipement"
+        android:text="EQUIPEMENT"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/typeEquipement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/t"
+        android:layout_below="@+id/textView3"
+        android:layout_marginTop="36dp"
+        android:text="Type :"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
     <ImageView
         android:id="@+id/logoTechno"
         android:layout_width="200dp"
         android:layout_height="200dp"
+        android:layout_alignBottom="@+id/datalenght"
         android:layout_alignLeft="@+id/textView1"
-        android:layout_alignTop="@+id/textView2"
         android:src="@drawable/enlogosf" />
+
+    <TextView
+        android:id="@+id/telegramtype"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/t"
+        android:layout_below="@+id/t"
+        android:layout_marginTop="41dp"
+        android:text="TelegramType : "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/trame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="22dp"
+        android:text="Trame : "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/trame"
+        android:layout_alignBottom="@+id/trame"
+        android:layout_alignRight="@+id/radio_group_techno"
+        android:text="reset" />
+
+    <TextView
+        android:id="@+id/temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/telegramtype"
+        android:layout_alignRight="@+id/imgEquip"
+        android:layout_marginRight="66dp"
+        android:text="Temperature : "
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/radio_group_techno"
+        android:layout_alignLeft="@+id/typeEquipement"
+        android:text="Status : "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

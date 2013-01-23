@@ -3,6 +3,7 @@ package com.taztag.tazpad.app;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import com.taztag.tazpad.telegram.Telegram;
@@ -64,7 +65,8 @@ public class EnOceanReceiver extends IntentService {
 		Log.d(TAG,"file exists: " + myDevice.exists());
 
 		InputStream in = null;
-		
+	
+
 		while(true)
 		{
 
@@ -83,7 +85,6 @@ public class EnOceanReceiver extends IntentService {
 				intent.putExtra("containsError", false);
 
 				in = new BufferedInputStream(new FileInputStream(myDevice));
-
 				in.read(header);						
 				Log.d(TAG, "header : "+header);
 

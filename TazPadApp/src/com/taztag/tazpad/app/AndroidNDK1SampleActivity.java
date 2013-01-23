@@ -1,9 +1,6 @@
 package com.taztag.tazpad.app;
 
-import java.io.DataOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
+import android.R.integer;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +11,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -24,7 +23,7 @@ import com.taztag.tazpad.telegram.Telegram;
 
 
 
-public class AndroidNDK1SampleActivity extends Activity {
+public class AndroidNDK1SampleActivity extends Activity implements android.widget.RadioGroup.OnCheckedChangeListener {
 
 	private static String TAG="TZTG_debug";
 	private Intent intent;
@@ -32,9 +31,18 @@ public class AndroidNDK1SampleActivity extends Activity {
 	
 	private RadioGroup radioTechnoGroup;
 	private RadioButton radioTechnoButton;
+	private Button resetButton;
 	private ImageView imgTecho;
-	
-	private String str;
+	private ImageView imgEquipement;
+    private String str;
+    private TextView tvTrame;
+    private TextView tvDataLenght;
+    private TextView tvTelegramType;
+    private TextView tvEquipementType;
+    private TextView tvTemperature;
+    private TextView tvStatus;
+    
+    
 	
 	
 	
@@ -43,19 +51,57 @@ public class AndroidNDK1SampleActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_tazpad);
+		setContentView(R.layout.activity_main);
+		
+		/****** DECLARATION *********/
+		
+		radioTechnoGroup=(RadioGroup)findViewById(R.id.radio_group_techno);
+		imgTecho=(ImageView)findViewById(R.id.logoTechno);
+		imgEquipement=(ImageView)findViewById(R.id.imgEquip);
+		tvTrame = (TextView)findViewById(R.id.trame);
+		tvDataLenght = (TextView)findViewById(R.id.datalenght);
+		tvTelegramType = (TextView)findViewById(R.id.telegramtype);
+		tvEquipementType = (TextView)findViewById(R.id.typeEquipement);
+		tvTemperature = (TextView)findViewById(R.id.temperature);
+		tvStatus = (TextView)findViewById(R.id.status);
+		
+		
+		/*********VISIBILITY********/
+		
+		tvTemperature.setVisibility(View.INVISIBLE);
+		imgEquipement.setVisibility(View.INVISIBLE);
+		imgTecho.setVisibility(View.INVISIBLE);
+
+		
+		
+		
+		
+		radioTechnoGroup.setOnCheckedChangeListener(this);
+		
+		
+		
 		Log.d(TAG,"onCreate");
 		intent = new Intent(this,EnOceanReceiver.class);
 		//startService(intent);
 		
-		Button clrscreen = (Button) findViewById(R.id.clrscr);
-		clrscreen.setOnClickListener(new View.OnClickListener() {
+		resetButton = (Button) findViewById(R.id.reset);
+		resetButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				TextView tv = (TextView)findViewById(R.id.tv);
-				tv.setText("");
+				
+				//unregisterReceiver(broadcastReceiver);
+				//stopService(intent); 
+				tvTrame.setText("Trame : ");
+				tvDataLenght.setText("Data Lenght : ");
+				tvTelegramType.setText("Telegramme Type : ");
+				tvEquipementType.setText("Type : ");			
+				tvStatus.setText("Status : ");
+				tvTemperature.setVisibility(View.INVISIBLE);
+				imgEquipement.setVisibility(View.INVISIBLE);
+				//startService(intent);
+				//registerReceiver(broadcastReceiver, new IntentFilter(EnOceanReceiver.BROADCAST_ACTION));
+				
 			}
 		});
 	}
@@ -65,7 +111,7 @@ public class AndroidNDK1SampleActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			 Log.d(TAG, "broadcast reception in main activity");
 			if(intent.getExtras().getBoolean("containsError") &&  intent.getExtras().getBoolean("containsError") != previous_val){
-				Toast.makeText(getApplicationContext(), intent.getExtras().getString("error"), Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(), intent.getExtras().getString("error"), Toast.LENGTH_SHORT).show();
 				previous_val = true; // reset of boolean value for one time only error print
 			}
 			else{
@@ -82,19 +128,32 @@ public class AndroidNDK1SampleActivity extends Activity {
 	private void updateUI(Intent intent) {
 		try{
 		Log.d(TAG,"UpdateUI");
-		TextView tv = (TextView)findViewById(R.id.tv);
 		String trame = intent.getExtras().getString("trame");
 		Telegram myTl = new Telegram(trame);
 		//tv.setText("Trame: "+msg.getData().getString("dataLength")+"\n "+myTl.getPacketType());
-		tv.setText(
-				"\nTrame: "+trame
-				+"\nTelegrameType: "+myTl.getTelegramType()
-				+"\nData: "+myTl.getData()
-				+tv.getText()
-				);
+		tvTrame.setText("Trame : "+myTl.getTrame());
+		tvDataLenght.setText("Data Lenght : "+myTl.getDataLenght());
+		tvTelegramType.setText("Telegramme Type : "+myTl.getTelegramType());
+		tvEquipementType.setText("Type : "+myTl.getEquipement());
+		tvStatus.setText("Status : "+myTl.getData());
+		if (myTl.getEquipement().equals("bouton_poussoire")){
+			
+			if(myTl.getData().equals("Bouton_Bas")){tvTemperature.setVisibility(View.INVISIBLE);imgEquipement.setImageResource(R.drawable.swpresb);imgEquipement.setVisibility(View.VISIBLE);}
+			else if(myTl.getData().equals("Bouton_Haut")){tvTemperature.setVisibility(View.INVISIBLE);imgEquipement.setImageResource(R.drawable.swpresh);imgEquipement.setVisibility(View.VISIBLE);}
+			else if(myTl.getData().equals("Bouton_Presse")){tvTemperature.setVisibility(View.INVISIBLE);imgEquipement.setImageResource(R.drawable.swnoe);imgEquipement.setVisibility(View.VISIBLE);}
+			else if(myTl.getData().equals("Bouton_Released")){tvTemperature.setVisibility(View.INVISIBLE);imgEquipement.setImageResource(R.drawable.swnoe);imgEquipement.setVisibility(View.VISIBLE);}
+	
+		}
+		
+		else if (myTl.getEquipement().equals("capteur_temperature")){imgEquipement.setVisibility(View.INVISIBLE);tvTemperature.setText(myTl.getData());tvTemperature.setVisibility(View.VISIBLE);}
+		
+		
+		
+		
+		
 		}
 		catch(IndexOutOfBoundsException e){
-			Toast.makeText(getApplicationContext(), intent.getExtras().getString("error"), Toast.LENGTH_SHORT).show();
+			//Toast.makeText(getApplicationContext(), intent.getExtras().getString("error"), Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -104,6 +163,8 @@ public class AndroidNDK1SampleActivity extends Activity {
 		getMenuInflater().inflate(R.menu.activity_tazpad, menu);
 		return true;
 	}
+	
+	/*
 	public static String toHex(byte[] array) {
 		String myString=new String(array);
 		/*
@@ -120,11 +181,11 @@ public class AndroidNDK1SampleActivity extends Activity {
 		//		Log.d("trame_to_hexa", sb.toString());
 		//		
 		//		return sb.toString();
-		return myString;
-	}
+		//return myString;
+	
 
 
-	private void initDrivers(){
+	/*private void initDrivers(){
 		List<String> myList = new ArrayList<String> ();
 		//myList.add("reboot");
 		myList.add("insmod /data/Taztag/ftdi_sio.ko");
@@ -152,18 +213,42 @@ public class AndroidNDK1SampleActivity extends Activity {
 
 	static {  
 		System.loadLibrary("ndk1");  
-	}
+	}*/
 
+	/*
 	@Override
 	public void onResume() {
 		super.onResume();		
 		startService(intent);
 		registerReceiver(broadcastReceiver, new IntentFilter(EnOceanReceiver.BROADCAST_ACTION));
 	}
+	*/
 	@Override
 	public void onPause() {
 		super.onPause();
 		unregisterReceiver(broadcastReceiver);
 		stopService(intent); 		
+	}
+
+	
+	@Override
+	public void onCheckedChanged(RadioGroup group, int checkedId) {
+			
+		switch(checkedId){
+		case R.id.radio_enocean:
+			str="EnOcean";
+			imgTecho.setImageResource(R.drawable.enlogosf);
+			startService(intent);
+			registerReceiver(broadcastReceiver, new IntentFilter(EnOceanReceiver.BROADCAST_ACTION));	
+			break;
+		case R.id.radio_zigbee:
+			str="Zigbee";
+			imgTecho.setImageResource(R.drawable.zogosf);
+			break;
+
+		}
+		
+		imgTecho.setVisibility(View.VISIBLE);
+		Toast.makeText(AndroidNDK1SampleActivity.this,"Technologie : "+str , Toast.LENGTH_SHORT).show();
 	}
 }
