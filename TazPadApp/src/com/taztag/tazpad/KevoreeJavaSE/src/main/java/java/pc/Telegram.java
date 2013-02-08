@@ -1,4 +1,4 @@
-package com.taztag.tazpad.kevoree;
+package java.pc;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -16,7 +16,7 @@ public class Telegram {
 	
 	/*public static void main(String argv[]) throws Exception
 	  {
-		Telegram t = new Telegram("55 00 07 07 04 7a f6 01 00 27 87 7d 30 01 ff ff ff ff 3a 00 13");
+		java.pc.Telegram t = new java.pc.Telegram("55 00 07 07 04 7a f6 01 00 27 87 7d 30 01 ff ff ff ff 3a 00 13");
 		t.getDataLenght();
 		t.getOptionalLenght();
 		System.out.println(t.getData())

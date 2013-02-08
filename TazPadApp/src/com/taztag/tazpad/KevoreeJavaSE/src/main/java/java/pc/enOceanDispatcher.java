@@ -1,4 +1,4 @@
-/**
+package java.pc; /**
  * Created with IntelliJ IDEA.
  * User: Sebastien
  * Date: 31/01/13
@@ -6,13 +6,11 @@
  * To change this template use File | Settings | File Templates.
  */
 
-import com.taztag.tazpad.kevoree.Telegram;
 import org.kevoree.annotation.*;
 import org.kevoree.framework.AbstractComponentType;
 import org.kevoree.framework.MessagePort;
 
 import java.lang.String;
-import java.util.StringTokenizer;
 
 
 /**
@@ -20,7 +18,8 @@ import java.util.StringTokenizer;
  */
 @Library(name = "JavaSE")
 @Requires({
-        @RequiredPort(name = "setLight", type = PortType.MESSAGE, optional = true)
+        @RequiredPort(name = "button", type = PortType.MESSAGE, optional = true),
+        @RequiredPort(name = "sensorTemp", type = PortType.MESSAGE, optional = true)
 })
 @Provides({
         @ProvidedPort(name = "trameReceiver", type = PortType.MESSAGE)
@@ -33,6 +32,8 @@ import java.util.StringTokenizer;
 @ComponentType
 public class enOceanDispatcher extends AbstractComponentType {
 
+    MessagePort buttonMP;
+    MessagePort sensorTempMP;
 
     @Start
     public void startComponent() {
@@ -57,6 +58,20 @@ public class enOceanDispatcher extends AbstractComponentType {
         if(str instanceof String){
             String trame = str.toString();
             Telegram telgram = new Telegram(trame);
+
+            if(telgram.getTelegramType().equals("RPS")){
+
+                buttonMP = getPortByName("button", MessagePort.class);
+                buttonMP.process(telgram.getDataStatus());
+
+            }
+
+            else if (telgram.getTelegramType().equals("4BS"))        {
+
+            sensorTempMP = getPortByName("sensorTemp", MessagePort.class);
+            sensorTempMP.process(telgram.getDataStatus());
+
+            }
         }
         else{
             System.out.println("Incorrect Trame Format");

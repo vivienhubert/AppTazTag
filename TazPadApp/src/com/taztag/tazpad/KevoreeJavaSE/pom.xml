@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>kevoree</groupId>
-    <artifactId>kevoree</artifactId>
-    <version>1.8.9</version>
+    <groupId>KevoreeJavaSE</groupId>
+    <artifactId>KevoreeJavaSE</artifactId>
+    <version>1.9.0</version>
 
     <properties>
         <kevoree.version>${project.version}</kevoree.version>
@@ -82,6 +82,7 @@
                 <version>${kevoree.version}</version>
                 <extensions>true</extensions>
                 <configuration>
+                    <nodeTypeNames>AndroidNode</nodeTypeNames>
                     <nodeTypeNames>JavaSENode</nodeTypeNames>
                 </configuration>
                 <executions>
