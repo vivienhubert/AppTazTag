@@ -64,19 +64,23 @@ public class enOceanDispatcher extends AbstractComponentType {
 
             if(telgram.getTelegramType().equals("RPS")){
 
-                System.out.println("RPS : Start");
+                System.out.println("RPS Trame");
+                System.out.println(telgram.getEquipement());
                 buttonMP = getPortByName("button", MessagePort.class);
-                buttonMP.process(telgram.getDataStatus());
+                buttonMP.process(telgram.getTrame());
 
             }
 
             else if (telgram.getTelegramType().equals("4BS"))        {
 
-            System.out.println("4BS :");
+            System.out.println("4BS Trame");
+            System.out.println(telgram.getEquipement());
             sensorTempMP = getPortByName("sensorTemp", MessagePort.class);
-            sensorTempMP.process(telgram.getDataStatus());
+            sensorTempMP.process(telgram.getTrame());
 
             }
+            else{
+                System.out.println("Incorrect TelegramType Format");}
         }
         else{
             System.out.println("Incorrect Trame Format");
