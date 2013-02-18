@@ -1,4 +1,4 @@
-package java.pc; /**
+package pc; /**
  * Created with IntelliJ IDEA.
  * User: Sebastien
  * Date: 31/01/13
@@ -6,17 +6,17 @@ package java.pc; /**
  * To change this template use File | Settings | File Templates.
  */
 
+import com.apple.eawt.SystemSleepListener;
 import org.kevoree.annotation.*;
 import org.kevoree.framework.AbstractComponentType;
 import org.kevoree.framework.MessagePort;
-
-import java.lang.String;
 
 
 /**
  * Défniniton des ports
  */
-@Library(name = "JavaSE")
+@Library(name = "Android")
+
 @Requires({
         @RequiredPort(name = "button", type = PortType.MESSAGE, optional = true),
         @RequiredPort(name = "sensorTemp", type = PortType.MESSAGE, optional = true)
@@ -34,6 +34,8 @@ public class enOceanDispatcher extends AbstractComponentType {
 
     MessagePort buttonMP;
     MessagePort sensorTempMP;
+    Telegram telgram;
+    String trame;
 
     @Start
     public void startComponent() {
@@ -56,11 +58,13 @@ public class enOceanDispatcher extends AbstractComponentType {
     public void lectureTrame(Object str) {
 
         if(str instanceof String){
-            String trame = str.toString();
-            Telegram telgram = new Telegram(trame);
+            trame = str.toString();
+            System.out.println("Trame :"+trame);
+            telgram = new Telegram(trame);
 
             if(telgram.getTelegramType().equals("RPS")){
 
+                System.out.println("RPS : Start");
                 buttonMP = getPortByName("button", MessagePort.class);
                 buttonMP.process(telgram.getDataStatus());
 
@@ -68,6 +72,7 @@ public class enOceanDispatcher extends AbstractComponentType {
 
             else if (telgram.getTelegramType().equals("4BS"))        {
 
+            System.out.println("4BS :");
             sensorTempMP = getPortByName("sensorTemp", MessagePort.class);
             sensorTempMP.process(telgram.getDataStatus());
 
