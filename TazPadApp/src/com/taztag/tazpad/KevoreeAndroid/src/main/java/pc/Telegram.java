@@ -103,9 +103,9 @@ public class Telegram {
 		String TelegramType ;
 		String value = tabTrame.get(6);
         
-             if(value.equals("F6")){TelegramType="RPS";}
-             else if(value.equals("D5")){TelegramType="1BS";}
-             else if(value.equals("A5")){TelegramType="4BS";}
+             if(value.equals("F6")|value.equals("f6")){TelegramType="RPS";}
+             else if(value.equals("D5")|value.equals("d5")){TelegramType="1BS";}
+             else if(value.equals("A5")|value.equals("a5")){TelegramType="4BS";}
              else {TelegramType="UNKNOWN";}
          
         return(TelegramType);      
