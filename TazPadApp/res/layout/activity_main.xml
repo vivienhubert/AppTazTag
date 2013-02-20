@@ -120,14 +120,6 @@
         android:text="Temperature : "
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/typeEquipement"
-        android:text="Status : "
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <Button
         android:id="@+id/start"
         android:layout_width="wrap_content"
@@ -155,5 +147,14 @@
         android:layout_alignRight="@+id/reset"
         android:layout_alignTop="@+id/datalenght"
         android:layout_marginRight="34dp" />
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/typeEquipement"
+        android:layout_alignTop="@+id/logoTechno"
+        android:text="Status : "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

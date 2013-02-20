@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -58,6 +59,9 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 	private TextView tvStatus;
 
 	// Zigbee part
+	ZigBeeThread zbThread;
+	ProgressBar progressZigbee = null;
+
 	private boolean configOk = false;
 	public boolean zdoStarted = false;
 	private boolean zbmInit = false;
@@ -67,7 +71,6 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 	private boolean toRestart = false;
 	private Notif nf;
 	private ZigbeeManager zbm;
-	ProgressBar progressZigbee = null;
 	private SimpDesc sd;
 
 
@@ -99,27 +102,11 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 
 
 		// ZigBee management from OMAR
-		progressZigbee = (ProgressBar) findViewById(R.id.progressBar1);
-		progressZigbee.setVisibility(ProgressBar.INVISIBLE);
+		//progressZigbee = (ProgressBar) findViewById(R.id.progressBar1);
+		//progressZigbee.setVisibility(ProgressBar.INVISIBLE);
 
-		zbm = ZigbeeManager.getInstance();
-
-		configOk = false;
-		zdoStarted = false;
-		zbmInit = false;
-
-		int res = connectZigbee();
-		Log.d("TT_ZigBee_Sample", "[Main] connectZigbee = " + res);
-		if (res != 0){
-			progressZigbee.setVisibility(ProgressBar.VISIBLE);
-			Log.d(TAG,"Failed to start ZigBee");
-		}
-		else{
-			progressZigbee.setVisibility(ProgressBar.INVISIBLE);
-			Log.d(TAG,"Success to start ZigBee");
-			//btnstart.setVisibility(Button.GONE);
-		}
-
+		zbThread = new ZigBeeThread();
+		init();
 		
 		//intent = new Intent(this,EnOceanReceiver.class);
 		//startService(intent);
@@ -127,9 +114,6 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 		startButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-
-				// Run Zigbee
-				sd.readFromTarget();
 
 				// Run Enocean
 				try {
@@ -151,6 +135,8 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				// Run Zigbee
+				zbThread.start();
 
 			}
 		});
@@ -248,11 +234,91 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 	public void updateMyValue(final double p) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				tvTrame.setText(" "+p);
+				imgTecho.setImageResource(R.drawable.zogosf);	// mise a jour du logo
+				imgTecho.setVisibility(View.VISIBLE);
+				imgEquipement.setVisibility(View.INVISIBLE);
+				tvTemperature.setVisibility(View.VISIBLE);
+				tvTemperature.setText(p+" C°");
 			}
 		});
 
 	}
+
+
+public class ZigBeeThread extends Thread {
+
+
+	public ZigBeeThread() {
+		// TODO Auto-generated constructor stub
+		//parent = _parent;
+		
+	}
+
+	public ZigBeeThread(Runnable runnable) {
+		super(runnable);
+		// TODO Auto-generated constructor stub
+	}
+
+	public ZigBeeThread(String threadName) {
+		super(threadName);
+		// TODO Auto-generated constructor stub
+	}
+
+	public ZigBeeThread(Runnable runnable, String threadName) {
+		super(runnable, threadName);
+		// TODO Auto-generated constructor stub
+	}
+
+	public ZigBeeThread(ThreadGroup group, Runnable runnable) {
+		super(group, runnable);
+		// TODO Auto-generated constructor stub
+	}
+
+	public ZigBeeThread(ThreadGroup group, String threadName) {
+		super(group, threadName);
+		// TODO Auto-generated constructor stub
+	}
+
+	public ZigBeeThread(ThreadGroup group, Runnable runnable, String threadName) {
+		super(group, runnable, threadName);
+		// TODO Auto-generated constructor stub
+	}
+
+	public ZigBeeThread(ThreadGroup group, Runnable runnable,
+			String threadName, long stackSize) {
+		super(group, runnable, threadName, stackSize);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public void run() {
+		while(!isInterrupted()) {
+			sd.readFromTarget();
+			SystemClock.sleep(500);
+		}
+	}
+	
+	
+}
+protected void init(){
+	zbm = ZigbeeManager.getInstance();
+
+	configOk = false;
+	zdoStarted = false;
+	zbmInit = false;
+
+	int res = connectZigbee();
+	Log.d("TT_ZigBee_Sample", "[Main] connectZigbee = " + res);
+	if (res != 0){
+		//progressZigbee.setVisibility(ProgressBar.VISIBLE);
+		Log.d(TAG,"Failed to start ZigBee");
+	}
+	else{
+		//progressZigbee.setVisibility(ProgressBar.INVISIBLE);
+		Log.d(TAG,"Success to start ZigBee");
+		//btnstart.setVisibility(Button.GONE);
+	}
+}
 
 	// Method to start Zigbee
 	public int connectZigbee() {
@@ -264,13 +330,10 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 			res = zbm.init();
 
 			if (res == 0) {
-				Log.d("TT_ZigBee_Sample",
-						"[Main] connectZigbee - ZTM - Init ZigBee Ok");
+				//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - Init ZigBee Ok");
 				zbmInit = true;
 			} else {
-				Log.d("TT_ZigBee_Sample",
-						"[Main] connectZigbee - ZTM - Init ZigBee Ko - res = "
-								+ res);
+				//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - Init ZigBee Ko - res = "								+ res);
 				zbmInit = false;
 				return -1;
 			}
@@ -279,90 +342,70 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 			do {
 				res = zbm.setConfiguration(ZConf.RX_ON_WHEN_IDLE_ID, "0");
 				if (res != 0) {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - RX_ON_WHEN_IDLE_ID failed");
+					//Log.d("TT_ZigBee_Sample",	"[Main] connectZigbee - ZTM - RX_ON_WHEN_IDLE_ID failed");
 					return -2;
 				} else {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - RX_ON_WHEN_IDLE_ID passed");
+					//Log.d("TT_ZigBee_Sample",	"[Main] connectZigbee - ZTM - RX_ON_WHEN_IDLE_ID passed");
 				}
 				res = zbm.setConfiguration(ZConf.NWK_UNIQUE_ADDR_ID, "0");
 				if (res != 0) {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - NWK_UNIQUE_ADDR_ID failed");
+					//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - NWK_UNIQUE_ADDR_ID failed");
 					return -3;
 				} else {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - NWK_UNIQUE_ADDR_ID passed");
+					//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - NWK_UNIQUE_ADDR_ID passed");
 				}
 				res = zbm
 						.setConfiguration(ZConf.CHANNEL_MASK_ID, ZChannel.sC12);
 				if (res != 0) {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - CHANNEL_MASK_ID failed");
+					//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - CHANNEL_MASK_ID failed");
 					return -4;
 				} else {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - CHANNEL_MASK_ID passed");
+					//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - CHANNEL_MASK_ID passed");
 				}
 				res = zbm.setConfiguration(ZConf.NWK_PREDEFINED_PANID_ID, "1");
 				if (res != 0) {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - NWK_PREDEFINED_PANID_ID failed");
+					//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - NWK_PREDEFINED_PANID_ID failed");
 					return -5;
 				} else {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - NWK_PREDEFINED_PANID_ID passed");
+					//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - NWK_PREDEFINED_PANID_ID passed");
 				}
 				res = zbm.setConfiguration(ZConf.EXT_PANID_ID, extPanId);
 				if (res != 0) {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - EXT_PANID_ID failed");
+					//Log.d("TT_ZigBee_Sample",	"[Main] connectZigbee - ZTM - EXT_PANID_ID failed");
 					return -6;
 				} else {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - EXT_PANID_ID passed");
+					//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - EXT_PANID_ID passed");
 				}
 				res = zbm.setConfiguration(ZConf.NWK_PANID_ID, nwkPanId);
 				if (res != 0) {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - EXT_PANID_ID failed");
+					//Log.d("TT_ZigBee_Sample",	"[Main] connectZigbee - ZTM - EXT_PANID_ID failed");
 					return -10;
 				} else {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - EXT_PANID_ID passed");
+					//Log.d("TT_ZigBee_Sample",	"[Main] connectZigbee - ZTM - EXT_PANID_ID passed");
 				}				
 				res = zbm.setConfiguration(ZConf.DEVICE_TYPE_ID, "0");
 				if (res != 0) {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - DEVICE_TYPE_ID failed");
+					//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - DEVICE_TYPE_ID failed");
 					return -7;
 				} else {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] connectZigbee - ZTM - DEVICE_TYPE_ID passed");
+					//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - DEVICE_TYPE_ID passed");
 				}
 			} while (false);
 			configOk = true;
 		}
 		if (configOk) {
-			Log.d("TT_ZigBee_Sample",
-					"[Main] connectZigbee - ZTM - Coordinator Configured");
+			//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - Coordinator Configured");
 			createClusters();
-			Log.d("TT_ZigBee_Sample",
-					"[Main] connectZigbee - Zdo.startNetwork - Before");
+			//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - Zdo.startNetwork - Before");
 			res = Zdo.startNetwork();
-			Log.d("TT_ZigBee_Sample",
-					"[Main] connectZigbee - Zdo.startNetwork - res = " + res);
+			//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - Zdo.startNetwork - res = " + res);
 			if (res == -1) {
-				Log.d("TT_ZigBee_Sample",
-						"[Main] connectZigbee - ZTM - Coordinator Not Started");
+				Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - Coordinator Not Started");
 				zdoStarted = false;
 				return -8;
 			} else {
-				Log.d("TT_ZigBee_Sample",
-						"[Main] connectZigbee - ZTM - Started");
-				Log.d("TT_ZigBee_Sample",
-						"[Main] connectZigbee - ZTM - Coordinator");
+				//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - Started");
+				//Log.d("TT_ZigBee_Sample","[Main] connectZigbee - ZTM - Coordinator");
 				zdoStarted = true;
 				return 0;
 			}
@@ -371,50 +414,18 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 			return 0;
 		return -9;
 	}
-	// Method which initialize the message
-
-	public void update(int who, double val) {
-		Log.d("TT_ZigBee_Sample", "[Main] update = " + who);
-		mHandler.obtainMessage(who, -1, -1, val).getData();
-
-	}
-
-
-	public void update(int who, String val) {
-		Log.d("TT_ZigBee_Sample", "[Main] update string = " + who);
-		mHandler.obtainMessage(who, -1, -1, val).getData();
-	}
-
-	// Method to create clusters
-	private int createClusters() {
-		if (zbmInit) {
-			Log.d("TT_ZigBee_Sample", "[Main] createClusters");
-			nf = Notif.getInstance();
-
-			sd = new SimpDesc(this);
-			sd.init();
-			sd.addClusters();
-			zbm.addNetworkListener(sd);
-			zbm.addZclListener(sd, sd.sDesc);
-			zbm.addConfListener(sd, sd.sDesc);
-		}
-		return 0;
-	}
-
 
 	// Reset zigbee et dislay a message if a plug is connected
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case Notif.CONNECTED:
-				tvTrame.setText("End Device has joined : Addr = "
-						+ nf.getAddr16().toHexString());
+				Log.d(TAG,"connected");
 				break;
 
 			case Notif.RESTART_ZIGBEE:
-				Log.d("TT_ZigBee_Sample",
-						"[Main] handleMessage - Restart ZigBee");
-				tvTrame.setText("ZigBee automatic restart");
+				//Log.d("TT_ZigBee_Sample",	"[Main] handleMessage - Restart ZigBee");
+				
 				toRestart = true;
 				new Thread() {
 					public void run() {
@@ -427,30 +438,60 @@ public class AndroidNDK1SampleActivity extends SerialPortActivity {
 				};
 				int restmp = connectZigbee();
 				if (restmp == 0) {
-					Log.d("TT_ZigBee_Sample", "[Main] Zigbee Network is ok");
+					//Log.d("TT_ZigBee_Sample", "[Main] Zigbee Network is ok");
 				} else {
-					Log.d("TT_ZigBee_Sample",
-							"[Main] Zigbee Network is KO, try again to restart");
+					//Log.d("TT_ZigBee_Sample",	"[Main] Zigbee Network is KO, try again to restart");
 				}
 				break;
 			case Notif.DATA_RESPONSE:
 				String data = msg.obj.toString();
-				Log.d("TT_ZigBee_Sample", "[Main] data = " + data);
-				tvTrame.setText("Rvd (" + nf.getAddr() + ") = " + data);
+				//Log.d("TT_ZigBee_Sample", "[Main] data = " + data);
+				
 				break;
 			case Notif.CLOSE_ZIGBEE:
-				Log.d("TT_ZigBee_Sample",
-						"[Main] close zigbee by notif ; zbminit = " + zbmInit
-						+ " ; torestart = " + toRestart);
+				//Log.d("TT_ZigBee_Sample","[Main] close zigbee by notif ; zbminit = " + zbmInit+ " ; torestart = " + toRestart);
 				break;
 			case Notif.STARTED:
-				Log.d("TT_ZigBee_Sample", "[Main] zigbee started by notif");
-				tvTrame.setText("ZigBee started");
+				//Log.d("TT_ZigBee_Sample", "[Main] zigbee started by notif");
+				
 				break;
 			default:
-				Log.d("TT_ZigBee_Sample", "[Main] MHandler msg.what unknown");
+				//Log.d("TT_ZigBee_Sample", "[Main] MHandler msg.what unknown");
 			}
 		};
 
 	};
+
+//Method to create clusters
+private int createClusters() {
+	if (zbmInit) {
+		//Log.d("TT_ZigBee_Sample", "[Main] createClusters");
+		nf = Notif.getInstance();
+
+		sd = new SimpDesc(this);
+		sd.init();
+		sd.addClusters();
+		zbm.addNetworkListener(sd);
+		zbm.addZclListener(sd, sd.sDesc);
+		zbm.addConfListener(sd, sd.sDesc);
+	}
+	return 0;
 }
+// Method which initialize the message
+
+public void update(int who, double val) {
+	//Log.d("TT_ZigBee_Sample", "[Main] update = " + who);
+	mHandler.obtainMessage(who, -1, -1, val).getData();
+
+}
+
+
+public void update(int who, String val) {
+	//Log.d("TT_ZigBee_Sample", "[Main] update string = " + who);
+	mHandler.obtainMessage(who, -1, -1, val).getData();
+}	
+
+}
+	
+
+	
