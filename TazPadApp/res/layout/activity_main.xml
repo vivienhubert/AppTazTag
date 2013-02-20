@@ -19,30 +19,6 @@
         android:scaleType="fitXY"
         android:src="@drawable/fd" />
 
-    <RadioGroup
-        android:id="@+id/radio_group_techno"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-
-        <RadioButton
-            android:id="@+id/radio_zigbee"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="75dp"
-            android:layout_marginTop="95dp"
-            android:text="Zigbee"
-            android:textColor="@color/blanc" />
-
-        <RadioButton
-            android:id="@+id/radio_enocean"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="75dp"
-            android:layout_marginTop="5dp"
-            android:text="EnOcean"
-            android:textColor="@color/blanc" />
-    </RadioGroup>
-
     <TextView
         android:id="@+id/t"
         android:layout_width="wrap_content"
@@ -134,15 +110,6 @@
         android:text="Trame : "
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <Button
-        android:id="@+id/reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/trame"
-        android:layout_alignBottom="@+id/trame"
-        android:layout_alignRight="@+id/radio_group_techno"
-        android:text="reset" />
-
     <TextView
         android:id="@+id/temperature"
         android:layout_width="wrap_content"
@@ -157,9 +124,36 @@
         android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/radio_group_techno"
         android:layout_alignLeft="@+id/typeEquipement"
         android:text="Status : "
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/trame"
+        android:layout_alignBottom="@+id/trame"
+        android:layout_alignLeft="@+id/logoTechno"
+        android:text="Start" />
+
+    <Button
+        android:id="@+id/reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/start"
+        android:layout_alignBottom="@+id/start"
+        android:layout_marginLeft="27dp"
+        android:layout_toRightOf="@+id/start"
+        android:text="reset" />
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/reset"
+        android:layout_alignTop="@+id/datalenght"
+        android:layout_marginRight="34dp" />
 
 </RelativeLayout>

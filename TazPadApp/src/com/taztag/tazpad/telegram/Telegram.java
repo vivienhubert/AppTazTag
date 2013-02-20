@@ -192,7 +192,7 @@ public class Telegram {
 			double dataTemp;
 			double currentTemp;
 			dataTemp = Integer.parseInt(tabTrame.get(9),16); // Passe de String en Decimal
-			currentTemp=dataTemp*(0.31);
+			currentTemp=60-(dataTemp/3.2);
 			Data = String.valueOf(currentTemp+" C°"); 		
 			}
 			
